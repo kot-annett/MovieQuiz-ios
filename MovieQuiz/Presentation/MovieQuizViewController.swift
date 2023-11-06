@@ -5,6 +5,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var yesButton: UIButton!
     
     //переменная с индексом текущего вопроса, начальное значение 0
     private var currentQuestionIndex = 0
@@ -130,6 +132,9 @@ final class MovieQuizViewController: UIViewController {
     
     // приватный метод, который обрабатывает результат ответа
     private func showAnswerResult(isCorrect: Bool) {
+        // Блокируем кнопки ответа
+        disableAnswerButtons()
+        
         if isCorrect {
             correctAnswers += 1
         }
@@ -160,6 +165,9 @@ final class MovieQuizViewController: UIViewController {
             let nextQuestion = questions[currentQuestionIndex]
             let viewModel = convert(model: nextQuestion)
             show(quiz: viewModel)
+            
+            // Разблокируем кнопки ответа
+            enableAnswerButton()
         }
     }
     
@@ -183,6 +191,18 @@ final class MovieQuizViewController: UIViewController {
         
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func disableAnswerButtons() {
+        // Блокируем обе кнопки
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+    }
+    
+    private func enableAnswerButton() {
+        // Разблокируем обе кнопки
+        noButton.isEnabled = true
+        yesButton.isEnabled = true
     }
 }
 
