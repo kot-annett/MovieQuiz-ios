@@ -8,10 +8,10 @@
 import Foundation
 
 struct QuizQuestion {
-    // название фильма, совпадает с названием афиши в Assets
+    /// название фильма, совпадает с названием афиши в Assets
     let image: String
-    // вопрос о рейтинге фильма
+    /// вопрос о рейтинге фильма
     let text: String
-    // правильный ответ на вопрос, булевое значение (true, false)
+    /// правильный ответ на вопрос, булевое значение (true, false)
     let correctAnswer: Bool
 }
