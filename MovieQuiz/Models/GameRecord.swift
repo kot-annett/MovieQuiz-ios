@@ -18,8 +18,6 @@ struct GameRecord: Codable {
     let date: Date
     
     /// метод сравнения по количеству верных ответов
-    /// - Parameter another: <#another description#>
-    /// - Returns: <#description#>
     func isBetterThan(_ another: GameRecord) -> Bool {
         correct > another.correct
     }

@@ -7,6 +7,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     //переменная с индексом текущего вопроса, начальное значение 0
     private var currentQuestionIndex: Int = 0
@@ -26,16 +27,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        // для инъекции зависимостей
         // создаем экземпляр QuestionFactory()
-        questionFactory = QuestionFactory()
-        questionFactory?.delegate = self
-        questionFactory?.requestNextQuestion()
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        //questionFactory?.delegate = self
+        //questionFactory?.requestNextQuestion()
         // создаем экземпляр AlertPresenter
         alertPresenter = AlertPresenter(presentingViewController: self)
         // инициализация сервиса по статистике
         statisticService = StatisticService()
-        // print(NSHomeDirectory())
+        // показываем индикатор загрузки
+        showLoadingIndicator()
+        //начинаем загрузку данных
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -55,26 +58,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
     // MARK: - Actions
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        // Было sprint_04
-        // let currentQuestion = questions[currentQuestionIndex]
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        answerGived(answer: false)
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        answerGived(answer: true)
     }
     
     // MARK: - Private functions
@@ -82,8 +82,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         //создаем изображение из названия афиши фильма
-        let image = UIImage(named: model.image) ?? UIImage()
-            
+        let image = UIImage(data: model.image) ?? UIImage()
+        
         //Определение порядкового номера текущего вопроса
         let questionNumber = "\(currentQuestionIndex + 1)/\(questionsAmount)"
         
@@ -118,6 +118,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self = self else { return } //разворачиваем слабую ссылку
                 self.showNextQuestionOrResults()
             }
+    }
+    
+    //универсальный метод для блоков кода внутри IBAction
+    private func answerGived(answer: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        
+        showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
     }
     
     // приватный метод, который содержит логику перехода в один из сценариев
@@ -181,5 +190,40 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         noButton.isEnabled = true
         yesButton.isEnabled = true
     }
+    
+    // приватный метод, который обрабатывает состояние загрузки
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        // включаем анимацию
+        activityIndicator.startAnimating()
+    }
+    
+    // приватный метод, который обрабатывает состояние ошибки
+    private func showNetworkError(message: String) {
+        // скрываем индикатор загрузки
+        hideLoadingIndicator()
+        
+        // создайте и покажите алерт
+        
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз",
+            // код, который снова загружает данные
+            completion: { [weak self] in
+                guard let self = self else { return }
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                
+                //показываем первый вопрос
+                self.questionFactory?.requestNextQuestion()
+            })
+        alertPresenter?.presentAlert(with: alertModel)
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+    }
+    
 }
 
