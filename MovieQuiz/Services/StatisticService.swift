@@ -7,12 +7,9 @@
 
 import Foundation
 
-// класс предоставляет реализацию для метода и свойств, объявленных в протоколе StatisticServiceProtocol
 final class StatisticService: StatisticServiceProtocol {
-    // экземпляр UserDefaults, который используется для хранения настроек и данных приложения между сеансами
     private let userDefaults = UserDefaults.standard
     
-    // перечисление, содержащее ключи для сохранения данных в UserDefaults
     private enum Keys: String {
         case correct, total, bestGame, gamesCount
     }
@@ -77,15 +74,11 @@ final class StatisticService: StatisticServiceProtocol {
     // метод store с проверкой на лучший результат
     func store(correct: Int, total: Int) {
         let newGame = GameRecord(correct: correct, total: total, date: Date())
-        //let newGame = GameRecord(correct: count, total: amount, date: Date())
-        // получаем текущий лучший результат
         let currentBestGame = bestGame
-        // проверяем, является ли новый результат лучше текущего
         if newGame.isBetterThan(currentBestGame) {
-            // сохраняем новый результат, так как он лучше
             bestGame = newGame
         }
-        // увеличиваем счетчик сыгранных квизов
+    
         gamesCount += 1
         
         // отладочный метод

@@ -8,7 +8,6 @@
 import Foundation
 
 /// модель для сохранения результата
-/// подписана на протокол Codable, чтобы ее можно было сохранить в UserDefaults
 struct GameRecord: Codable {
     /// количество правильных ответов
     let correct: Int

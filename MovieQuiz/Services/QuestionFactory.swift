@@ -8,16 +8,15 @@
 import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
-    private let moviesLoader: MoviesLoading
-    //свойство с делегатом, с которым будет общаться фабрика
-    weak var delegate: QuestionFactoryDelegate?
-    
+    private let moviesLoader: MoviesLoadingProtocol
     private var movies: [MostPopularMovie] = []
     
-    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
+    init(moviesLoader: MoviesLoadingProtocol, delegate: QuestionFactoryDelegate?) {
         self.moviesLoader = moviesLoader
         self.delegate = delegate
     }
+    
+    weak var delegate: QuestionFactoryDelegate?
     
 //    private let questions: [QuizQuestion] = [
 //        QuizQuestion(
@@ -92,13 +91,6 @@ class QuestionFactory: QuestionFactoryProtocol {
                 
             }
         }
-//        guard let index = (0..<questions.count).randomElement() else {
-//            delegate?.didReceiveNextQuestion(question: nil)
-//            return
-//        }
-//        let question = questions[safe: index]
-//        // вызываем метод делегата и передаем вопрос в него
-//        delegate?.didReceiveNextQuestion(question: question)
     }
     
     func loadData() {
@@ -116,68 +108,3 @@ class QuestionFactory: QuestionFactoryProtocol {
         }
     }
 }
-
-
-/*
- Mock-данные
- 
- 
- Картинка: The Godfather
- Настоящий рейтинг: 9,2
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: The Dark Knight
- Настоящий рейтинг: 9
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: Kill Bill
- Настоящий рейтинг: 8,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: The Avengers
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: Deadpool
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: The Green Knight
- Настоящий рейтинг: 6,6
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
-
-
- Картинка: Old
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-
-
- Картинка: The Ice Age Adventures of Buck Wild
- Настоящий рейтинг: 4,3
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-
-
- Картинка: Tesla
- Настоящий рейтинг: 5,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-
-
- Картинка: Vivarium
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- */
