@@ -13,6 +13,6 @@ struct QuizStepViewModel {
     let image: UIImage
     /// вопрос о рейтинга фильма
     let question: String
-    /// строка с порядковым номером этого вопроса (напр. "1/10")
+    /// строка с порядковым номером этого вопроса 
     let questionNumber: String
 }

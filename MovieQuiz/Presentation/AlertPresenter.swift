@@ -8,15 +8,12 @@
 import UIKit
 
 final class AlertPresenter {
-    // инъекция MovieQuizViewController в AlertPresenter
-    // создаем слабую ссылку, чтобы предотвратить retain cycles
     private weak var presentingViewController: MovieQuizViewController?
     
     init(presentingViewController: MovieQuizViewController) {
         self.presentingViewController = presentingViewController
     }
     
-    // метод для отображения алерта
     func presentAlert(with model: AlertModel) {
         let alert = UIAlertController(title: model.title,
                                       message: model.message,

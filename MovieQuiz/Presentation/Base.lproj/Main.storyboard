@@ -107,6 +107,9 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Xyo-sX-MGE">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -115,9 +118,12 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="QVb-Ql-rfM" secondAttribute="trailing" constant="20" id="Gfk-uI-9EP"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="QVb-Ql-rfM" secondAttribute="bottom" id="J41-Hf-ndr"/>
                             <constraint firstItem="QVb-Ql-rfM" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="Mhp-z9-3Oq"/>
+                            <constraint firstItem="Xyo-sX-MGE" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="S31-RH-DcL"/>
+                            <constraint firstItem="Xyo-sX-MGE" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="oZX-cS-9Ks"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="Xyo-sX-MGE" id="LzX-DC-3Jy"/>
                         <outlet property="counterLabel" destination="ib5-hH-Mda" id="E3D-KR-TY0"/>
                         <outlet property="imageView" destination="BKV-aH-rBS" id="f5B-QN-4Py"/>
                         <outlet property="noButton" destination="9Xs-zU-xAX" id="NAL-7R-dWJ"/>
