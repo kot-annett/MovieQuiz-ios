@@ -10,7 +10,7 @@ import Foundation
 /// Отвечает за загрузку данных по URL
 struct NetworkClient {
     
-    // реализация протокола Error.
+    // реализация протокола Error
     private enum NetworkError: Error {
         // обозначение ошибки связанной с HTTP-кодом ответа
         case codeError

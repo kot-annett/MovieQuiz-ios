@@ -135,6 +135,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             showResult(quiz: viewModel)
         } else {
             // идем в состояние "Вопрос показан"
+            showLoadingIndicator()
             currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
             
@@ -190,9 +191,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         activityIndicator.startAnimating()
     }
     
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+    }
+    
     // приватный метод, который обрабатывает состояние ошибки
     private func showNetworkError(message: String) {
-        // скрываем индикатор загрузки
+        
         hideLoadingIndicator()
         
         let alertModel = AlertModel(
@@ -210,10 +215,5 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             })
         alertPresenter?.presentAlert(with: alertModel)
     }
-    
-    private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
-    }
-    
 }
 
