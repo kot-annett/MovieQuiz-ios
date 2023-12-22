@@ -9,8 +9,27 @@ import Foundation
 import UIKit
 
 final class MovieQuizPresenter {
-    let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = 0
+    let questionsAmount: Int = 10
+    var currentQuestion: QuizQuestion?
+    weak var viewController: MovieQuizViewController?
+    
+    func yesButtonClicked() {
+        answerGived(answer: true)
+    }
+    
+    func noButtonClicked() {
+        answerGived(answer: false)
+    }
+    
+    //универсальный метод для блоков кода внутри IBAction
+    private func answerGived(answer: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        
+        viewController?.showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
+    }
     
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
     func convert(model: QuizQuestion) -> QuizStepViewModel {

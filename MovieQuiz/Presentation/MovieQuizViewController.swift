@@ -15,17 +15,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     //MARK: - Private Properties
     private let presenter = MovieQuizPresenter()
-//    private var currentQuestionIndex: Int = 0 // Presenter
     private var correctAnswers: Int = 0
-//    private let questionsAmount: Int = 10 // Presenter
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
+    private var currentQuestion: QuizQuestion? //Presenter
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticService?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        presenter.viewController = self
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         alertPresenter = AlertPresenter(presentingViewController: self)
         statisticService = StatisticService()
@@ -60,27 +60,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - IB Actions
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        answerGived(answer: false)
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonClicked()
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        answerGived(answer: true)
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonClicked()
     }
     
     // MARK: - Private Methods
-    
-//    // приватный метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
-//    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-//        //создаем изображение из названия афиши фильма
-//        let image = UIImage(data: model.image) ?? UIImage()
-//        
-//        //Определение порядкового номера текущего вопроса
-//        let questionNumber = "\(currentQuestionIndex + 1)/\(questionsAmount)"
-//        
-//        //Возвращаем вью модель для текущего вопроса
-//        return QuizStepViewModel(image: image, question: model.text, questionNumber: questionNumber)
-//    }
-    
+ 
     // приватный метод вывода на экран вопроса, который принимает на вход вью модель вопроса
     private func show(quiz step: QuizStepViewModel) {
         enableAnswerButton()
@@ -90,8 +80,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.borderWidth = 0
     }
     
-    // приватный метод, который обрабатывает результат ответа
-    private func showAnswerResult(isCorrect: Bool) {
+    // метод, который обрабатывает результат ответа
+    func showAnswerResult(isCorrect: Bool) {
         disableAnswerButtons()
         
         if isCorrect {
@@ -109,14 +99,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             }
     }
     
-    //универсальный метод для блоков кода внутри IBAction
-    private func answerGived(answer: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
-    }
+//    //универсальный метод для блоков кода внутри IBAction
+//    private func answerGived(answer: Bool) {
+//        guard let currentQuestion = currentQuestion else {
+//            return
+//        }
+//
+//        showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
+//    }
     
     // приватный метод, который содержит логику перехода в один из сценариев
     private func showNextQuestionOrResults() {
