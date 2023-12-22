@@ -14,7 +14,7 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     //MARK: - Private Properties
-    private var presenter: MovieQuizPresenter!
+    private var presenter: MovieQuizPresenter?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticService?
     
@@ -31,11 +31,11 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - IB Actions
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.noButtonClicked()
+        presenter?.noButtonClicked()
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.yesButtonClicked()
+        presenter?.yesButtonClicked()
     }
     
     // MARK: - Methods
@@ -53,7 +53,7 @@ final class MovieQuizViewController: UIViewController {
     func showAnswerResult(isCorrect: Bool) {
         disableAnswerButtons()
         
-        presenter.didAnswer(isCorrect: isCorrect)
+        presenter?.didAnswer(isCorrect: isCorrect)
         // метод красит рамку
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -62,7 +62,7 @@ final class MovieQuizViewController: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.presenter.showNextQuestionOrResults()
+            self.presenter?.showNextQuestionOrResults()
             }
     }
     
@@ -75,7 +75,7 @@ final class MovieQuizViewController: UIViewController {
         // формируем текст для алерта, включая округление точности и текущую дату
         let accuracyText = String(format: "%.2f", statisticService?.totalAccuracy ?? 0.0)
         let dateText = statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString
-        let recordText = "Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount),\nКоличество сыгранных квизов: \(playedQuizzesCount),\nРекорд: \(currentBestGame.correct)/\(currentBestGame.total) (\(dateText)),\nСредняя точность: \(accuracyText)%"
+        let recordText = "Ваш результат: \(presenter?.correctAnswers ?? 0)/\(presenter?.questionsAmount ?? 0),\nКоличество сыгранных квизов: \(playedQuizzesCount),\nРекорд: \(currentBestGame.correct)/\(currentBestGame.total) (\(dateText)),\nСредняя точность: \(accuracyText)%"
         
         let alertModel = AlertModel(
             title: result.title,
@@ -84,11 +84,11 @@ final class MovieQuizViewController: UIViewController {
             completion: { [weak self] in
                 // сбрасываем игру
                 guard let self = self else { return }
-                self.presenter.restartGame()
+                self.presenter?.restartGame()
             })
         // обновление статистики после завершения квиза
-        if let statisticService = statisticService {
-            statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
+        if let statisticService = statisticService, let correctAnswers = presenter?.correctAnswers, let questionsAmount = presenter?.questionsAmount {
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
         }
         
         alertPresenter?.presentAlert(with: alertModel)
@@ -128,7 +128,7 @@ final class MovieQuizViewController: UIViewController {
             // снова загружаем данные
             completion: { [weak self] in
                 guard let self = self else { return }
-                self.presenter.restartGame()
+                self.presenter?.restartGame()
             })
         alertPresenter?.presentAlert(with: alertModel)
     }
