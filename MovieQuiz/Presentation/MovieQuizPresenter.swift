@@ -12,6 +12,8 @@ final class MovieQuizPresenter {
     private var currentQuestionIndex: Int = 0
     let questionsAmount: Int = 10
     var currentQuestion: QuizQuestion?
+    var correctAnswers: Int = 0
+    var questionFactory: QuestionFactoryProtocol?
     weak var viewController: MovieQuizViewController?
     
     func yesButtonClicked() {
@@ -37,6 +39,38 @@ final class MovieQuizPresenter {
         let questionNumber = "\(currentQuestionIndex + 1)/\(questionsAmount)"
         
         return QuizStepViewModel(image: image, question: model.text, questionNumber: questionNumber)
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        // проверка, что вопрос не nil
+        guard let question = question else {
+            return
+        }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+        }
+    }
+    
+    // метод, который содержит логику перехода в один из сценариев
+    func showNextQuestionOrResults() {
+        if self.isLastQuestion() {
+            // идем в состояние "Результат квиза"
+            let text = correctAnswers == questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" : "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
+            let viewModel = QuizResultsViewModel(
+                title: "Этот раунд окончен",
+                text: text,
+                buttonText: "Сыграть еще раз")
+            viewController?.showResult(quiz: viewModel)
+        } else {
+            // идем в состояние "Вопрос показан"
+            self.switchToNextQuestion()
+            questionFactory?.requestNextQuestion()
+            
+            viewController?.enableAnswerButton()
+        }
     }
     
     func isLastQuestion() -> Bool {
