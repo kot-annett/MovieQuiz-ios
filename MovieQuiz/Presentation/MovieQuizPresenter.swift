@@ -10,17 +10,20 @@ import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
+    private var statisticService: StatisticServiceProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private weak var viewController: MovieQuizViewController?
     
     private var currentQuestionIndex: Int = 0
-    let questionsAmount: Int = 10
-    var currentQuestion: QuizQuestion?
-    var correctAnswers: Int = 0
+    private let questionsAmount: Int = 10
+    private var currentQuestion: QuizQuestion?
+    private var correctAnswers: Int = 0
     
     
     init(viewController: MovieQuizViewController) {
         self.viewController = viewController
+        
+        statisticService = StatisticService()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
@@ -67,7 +70,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             return
         }
         
-        viewController?.showAnswerResult(isCorrect: answer == currentQuestion.correctAnswer)
+        proceedWithAnswer(isCorrect: answer == currentQuestion.correctAnswer)
     }
     
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
@@ -78,11 +81,24 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         return QuizStepViewModel(image: image, question: model.text, questionNumber: questionNumber)
     }
     
+    // метод, который обрабатывает результат ответа
+    func proceedWithAnswer(isCorrect: Bool) {
+        viewController?.disableAnswerButtons()
+        
+        didAnswer(isCorrect: isCorrect)
+        viewController?.hightlightImageBorder(isCorrect: isCorrect)
+       
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+            }
+    }
+    
     // метод, который содержит логику перехода в один из сценариев
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             // идем в состояние "Результат квиза"
-            let text = correctAnswers == questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" : "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
+            let text = correctAnswers == self.questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" : "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен",
                 text: text,
@@ -97,6 +113,25 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
+    func makeResultMessage() -> String {
+        statisticService?.store(correct: correctAnswers, total: questionsAmount)
+        
+        // текущий рекорд
+        let bestGame = statisticService?.bestGame ?? GameRecord(correct: 0, total: 0, date: Date())
+        let dateText = statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString
+        let bestGameInfoLine = "Рекорд: \(bestGame.correct)/\(bestGame.total)" + " (\(dateText))"
+        // количество сыгранных квизов
+        let playedQuizzesCount = "Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)"
+        let currentGameResultLine = "Ваш результат: \(correctAnswers)/\(questionsAmount)"
+        let accuracyText = "Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0.0))%"
+        
+        let resultMessage = [
+            currentGameResultLine, playedQuizzesCount, bestGameInfoLine, accuracyText
+        ].joined(separator: "\n")
+        
+        return resultMessage
+    }
+ 
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
     }
