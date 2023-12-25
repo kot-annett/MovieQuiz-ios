@@ -14,6 +14,7 @@ final class StatisticService: StatisticServiceProtocol {
         case correct, total, bestGame, gamesCount
     }
     
+    // MARK: - Properties
     private var correct: Int {
         get {
             userDefaults.integer(forKey: Keys.correct.rawValue)
@@ -32,25 +33,24 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
+    /// средняя точность правильных ответов в процентах
     var totalAccuracy: Double {
         Double(correct) / Double(total) * 100
     }
     
-    var gamesCount: Int {
+    private(set) var gamesCount: Int {
         get {
-            return userDefaults.integer(forKey: Keys.gamesCount.rawValue)
+            userDefaults.integer(forKey: Keys.gamesCount.rawValue)
         }
         set {
             userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
         }
     }
     
-    var bestGame: GameRecord {
+    private(set) var bestGame: GameRecord {
         // данные читаются из UserDefaults и декодируются в GameRecord
         get {
-            // пытаемся получить данные из UserDefaults по ключу bestGame
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
-                  // используем JSONDecoder, чтобы декодировать данные data в экземпляр GameRecord (record)
                   let record = try? JSONDecoder().decode(GameRecord.self, from: data) else {
                 // если данные отсутствуют и декодирование не удалось
                 // возвращаем значение по умолчанию для GameRecord
@@ -71,29 +71,39 @@ final class StatisticService: StatisticServiceProtocol {
         }
     }
     
-    // метод store с проверкой на лучший результат
-    func store(correct: Int, total: Int) {
-        let newGame = GameRecord(correct: correct, total: total, date: Date())
-        let currentBestGame = bestGame
-        if newGame.isBetterThan(currentBestGame) {
-            bestGame = newGame
-        }
+    // MARK: - Public methods
     
-        gamesCount += 1
+    // метод store с проверкой на лучший результат
+//    func store(correct: Int, total: Int) {
+//        let newGame = GameRecord(correct: correct, total: total, date: Date())
+//        let currentBestGame = bestGame
+//        if newGame.isBetterThan(currentBestGame) {
+//            bestGame = newGame
+//        }
+//
+//        gamesCount += 1
+//
+//        // отладочный метод
+//        print("Stored game. Total Accuracy: \(totalAccuracy), Games Count: \(gamesCount), Best Game: \(bestGame)")
+//    }
+    
+    func store(correct count: Int, total amount: Int) {
+        self.correct += count
+        self.total += amount
+        self.gamesCount += 1
         
-        // отладочный метод
-        print("Stored game. Total Accuracy: \(totalAccuracy), Games Count: \(gamesCount), Best Game: \(bestGame)")
+        let game = GameRecord(correct: correct, total: total, date: Date())
+        if game.isBetterThan(bestGame) {
+            bestGame = game
+        }
     }
 }
 
+// MARK: - Protocol
 protocol StatisticServiceProtocol {
-    // средняя точность правильных ответов за все игры в процентах
     var totalAccuracy: Double { get }
-    // количество завершенных игр
     var gamesCount: Int { get }
-    // информация о лучшей попытке
     var bestGame: GameRecord { get }
     
-    // метод для сохранения текущего результата игры
     func store(correct count: Int, total amount: Int)
 }

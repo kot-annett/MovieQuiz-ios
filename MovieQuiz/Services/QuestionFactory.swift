@@ -134,8 +134,4 @@ final class QuestionFactory: QuestionFactoryProtocol {
 //            correctAnswer: false)
 //    ]
     
-    // перечисление, чтобы явно представлять различные виды ошибок, связанных с загрузкой данных
-//    enum LoadingError: Error {
-//        case failedToLoadImage
-//        case otherError(description: String)
-//    }
+    
