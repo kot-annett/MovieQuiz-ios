@@ -14,7 +14,9 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     //MARK: - Private Properties
-    private var presenter: MovieQuizPresenter?
+    private lazy var presenter: MovieQuizPresenter = {
+        return MovieQuizPresenter(viewController: self)
+    }()
     private var alertPresenter: AlertPresenter?
     
     // MARK: - Lifecycle
@@ -29,11 +31,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // MARK: - IB Actions
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter?.noButtonClicked()
+        presenter.noButtonClicked()
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter?.yesButtonClicked()
+        presenter.yesButtonClicked()
     }
     
     // MARK: - Methods
@@ -58,17 +60,17 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // метод для показа результатов раунда квиза
     func showResult(quiz result: QuizResultsViewModel) {
         
-        let message = presenter?.makeResultMessage()
+        let message = presenter.makeResultMessage()
         
         let alertModel = AlertModel(
             title: result.title,
-            message: message ?? "Статистика не загрузилась",
+            message: message,
             buttonText: result.buttonText,
             completion: { [weak self] in
                 // сбрасываем игру
                 guard let self = self else { return }
                 
-                self.presenter?.restartGame()
+                self.presenter.restartGame()
             })
     
         alertPresenter?.presentAlert(with: alertModel)
@@ -108,7 +110,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             // снова загружаем данные
             completion: { [weak self] in
                 guard let self = self else { return }
-                self.presenter?.restartGame()
+                self.presenter.restartGame()
             })
         alertPresenter?.presentAlert(with: alertModel)
     }
