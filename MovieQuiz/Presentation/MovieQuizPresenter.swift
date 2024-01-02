@@ -10,6 +10,8 @@ import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
+    // MARK: - Private Properties
+    
     private var statisticService: StatisticServiceProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private weak var viewController: MovieQuizViewControllerProtocol?
@@ -19,6 +21,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var correctAnswers: Int = 0
     
+    // MARK: - Initializers
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
@@ -54,7 +57,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    // MARK: - Methods
+    // MARK: - Public Methods
     
     func yesButtonClicked() {
         answerGived(answer: true)
@@ -62,15 +65,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func noButtonClicked() {
         answerGived(answer: false)
-    }
-    
-    //универсальный метод для блоков кода внутри IBAction
-    private func answerGived(answer: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        proceedWithAnswer(isCorrect: answer == currentQuestion.correctAnswer)
     }
     
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для главного экрана
@@ -81,46 +75,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         return QuizStepViewModel(image: image, question: model.text, questionNumber: questionNumber)
     }
     
-    // метод, который обрабатывает результат ответа
-    func proceedWithAnswer(isCorrect: Bool) {
-        viewController?.disableAnswerButtons()
-        
-        didAnswer(isCorrect: isCorrect)
-        viewController?.hightlightImageBorder(isCorrect: isCorrect)
-       
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.proceedToNextQuestionOrResults()
-            }
-    }
-    
-    // метод, который содержит логику перехода в один из сценариев
-    func proceedToNextQuestionOrResults() {
-        if self.isLastQuestion() {
-            // идем в состояние "Результат квиза"
-            let text = correctAnswers == self.questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" : "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
-            let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен",
-                text: text,
-                buttonText: "Сыграть еще раз")
-            viewController?.showResult(quiz: viewModel)
-        } else {
-            // идем в состояние "Вопрос показан"
-            self.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-            
-            viewController?.enableAnswerButton()
-        }
-    }
-    
     func makeResultMessage() -> String {
         statisticService?.store(correct: correctAnswers, total: questionsAmount)
         
-        // текущий рекорд
         let bestGame = statisticService?.bestGame ?? GameRecord(correct: 0, total: 0, date: Date())
         let dateText = statisticService?.bestGame.date.dateTimeString ?? Date().dateTimeString
         let bestGameInfoLine = "Рекорд: \(bestGame.correct)/\(bestGame.total)" + " (\(dateText))"
-        // количество сыгранных квизов
         let playedQuizzesCount = "Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)"
         let currentGameResultLine = "Ваш результат: \(correctAnswers)/\(questionsAmount)"
         let accuracyText = "Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0.0))%"
@@ -132,9 +92,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         return resultMessage
     }
  
-    func isLastQuestion() -> Bool {
-        currentQuestionIndex == questionsAmount - 1
-    }
+    
     
     func restartGame() {
         currentQuestionIndex = 0
@@ -153,7 +111,56 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             correctAnswers += 1
         }
     }
+    
+    // MARK: - Private Methods
+    
+    //универсальный метод для блоков кода внутри IBAction
+    private func answerGived(answer: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        
+        proceedWithAnswer(isCorrect: answer == currentQuestion.correctAnswer)
+    }
+    
+    // метод, который обрабатывает результат ответа
+    private func proceedWithAnswer(isCorrect: Bool) {
+        viewController?.disableAnswerButtons()
+        
+        didAnswer(isCorrect: isCorrect)
+        viewController?.hightlightImageBorder(isCorrect: isCorrect)
+       
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+            }
+    }
+    
+    // метод, который содержит логику перехода в один из сценариев
+    private func proceedToNextQuestionOrResults() {
+        if isLastQuestion() {
+            // идем в состояние "Результат квиза"
+            let text = correctAnswers == self.questionsAmount ? "Поздравляем, вы ответили на 10 из 10!" : "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
+            let viewModel = QuizResultsViewModel(
+                title: "Этот раунд окончен",
+                text: text,
+                buttonText: "Сыграть еще раз")
+            viewController?.showResult(quiz: viewModel)
+        } else {
+            // идем в состояние "Вопрос показан"
+            self.switchToNextQuestion()
+            questionFactory?.requestNextQuestion()
+            
+            viewController?.enableAnswerButton()
+        }
+    }
+    
+    private func isLastQuestion() -> Bool {
+        currentQuestionIndex == questionsAmount - 1
+    }
 }
+
+// MARK: - Protocol
 
 protocol MovieQuizViewControllerProtocol: AnyObject {
     func show(quiz step: QuizStepViewModel)

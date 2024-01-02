@@ -48,44 +48,27 @@ final class StatisticService: StatisticServiceProtocol {
     }
     
     private(set) var bestGame: GameRecord {
-        // данные читаются из UserDefaults и декодируются в GameRecord
+        
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
                   let record = try? JSONDecoder().decode(GameRecord.self, from: data) else {
-                // если данные отсутствуют и декодирование не удалось
-                // возвращаем значение по умолчанию для GameRecord
+                
                 return .init(correct: 0, total: 0, date: Date())
             }
-            // возвращаем экземпляр GameRecord, который сохраняется в UserDefaults
+            
             return record
         }
-        // данные кодируются в Data  и сохраняются в UserDefaults
+       
         set {
             guard let data = try? JSONEncoder().encode(newValue) else {
-                // в случае ошибки кодирования
                 print("Невозможно сохранить результат")
                 return
             }
-            // сохраняем константу data в UserDefaults
             userDefaults.set(data, forKey: Keys.bestGame.rawValue)
         }
     }
     
-    // MARK: - Public methods
-    
-    // метод store с проверкой на лучший результат
-//    func store(correct: Int, total: Int) {
-//        let newGame = GameRecord(correct: correct, total: total, date: Date())
-//        let currentBestGame = bestGame
-//        if newGame.isBetterThan(currentBestGame) {
-//            bestGame = newGame
-//        }
-//
-//        gamesCount += 1
-//
-//        // отладочный метод
-//        print("Stored game. Total Accuracy: \(totalAccuracy), Games Count: \(gamesCount), Best Game: \(bestGame)")
-//    }
+    // MARK: - Public Methods
     
     func store(correct count: Int, total amount: Int) {
         self.correct += count

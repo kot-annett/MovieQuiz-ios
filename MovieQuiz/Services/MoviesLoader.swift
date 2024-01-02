@@ -41,6 +41,8 @@ struct MoviesLoader: MoviesLoadingProtocol {
     }
 }
 
+// MARK: - Protocol
+
 protocol MoviesLoadingProtocol {
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void)
 }

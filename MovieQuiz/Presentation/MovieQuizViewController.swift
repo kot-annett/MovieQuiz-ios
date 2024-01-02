@@ -19,6 +19,12 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }()
     private var alertPresenter: AlertPresenter?
     
+    //MARK: - UIStatusBarStyle
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +44,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         presenter.yesButtonClicked()
     }
     
-    // MARK: - Methods
+    // MARK: - Public Methods
  
     // метод вывода на экран вопроса, который принимает на вход вью модель вопроса
     func show(quiz step: QuizStepViewModel) {
@@ -76,7 +82,6 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         alertPresenter?.presentAlert(with: alertModel)
     }
       
-    // Блокируем обе кнопки
     func disableAnswerButtons() {
         noButton.isEnabled = false
         yesButton.isEnabled = false
@@ -87,10 +92,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         yesButton.isEnabled = true
     }
     
-    // метод, который обрабатывает состояние загрузки
     func showLoadingIndicator() {
         activityIndicator.isHidden = false
-        // включаем анимацию
         activityIndicator.startAnimating()
     }
     
