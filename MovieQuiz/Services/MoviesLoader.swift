@@ -9,7 +9,11 @@ import Foundation
 
 struct MoviesLoader: MoviesLoadingProtocol {
     // MARK: - NetworkClient
-    private let networkClient = NetworkClient()
+    private let networkClient: NetworkRouting
+    
+    init(networkClient: NetworkRouting = NetworkClient()) {
+        self.networkClient = networkClient
+    }
     
     // MARK: - URL
     private var mostPopularMoviesUrl: URL {
@@ -36,6 +40,8 @@ struct MoviesLoader: MoviesLoadingProtocol {
         }
     }
 }
+
+// MARK: - Protocol
 
 protocol MoviesLoadingProtocol {
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void)
